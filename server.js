@@ -2,10 +2,13 @@
 const express = require('express');
 const server = express();
 const fs = require('fs');
-const weatherRouter = express.Router();
+//const weatherRouter = require('./routes/weather');
+const router = express.Router();
 
 const rp = require('request-promise');
 var cheerio = require('cheerio'); // Basically jQuery for node.js
+
+
 
 /*
 server.get('/', function (req, res) {
@@ -14,24 +17,47 @@ server.get('/', function (req, res) {
 
 server.use(express.static(__dirname + "/public"));
 
-weatherRouter.route("/")
+
+router.route("/weather")
     .get(function(req, res){
-        const content = fs.readFileSync("weather.json", "utf8");
-        const tasks = JSON.parse(content);
-        res.send(tasks);
+        const request = require('request');
+        const city = "Kiev";
+        const appid = "b6907d289e10d714a6e88b30761fae22";
+        // request("http://samples.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + appid,//b6907d289e10d714a6e88b30761fae22',
+        //     function (error, response, body) {
+        //         let weatherData = JSON.parse(body);
+        //         console.log(weatherData, typeof weatherData);
+        //         if(!error){
+        //             return res.status(200).json(weatherData); // res.end, res.send, res.status(200), res.json, res.sendFile
+        //         } else {
+        //             return res.json(error);
+        //         }
+        //     });
+
+        rp({
+            uri: "http://samples.openweathermap.org/data/2.5/weather", //?q=Kiev&appid=b6907d289e10d714a6e88b30761fae22", // + city + "&appid=" + appid,
+            qs: {
+                q: 'Kiev', // -> uri + '?access_token=xxxxx%20xxxxx'
+                appid: appid//'b6907d289e10d714a6e88b30761fae22'
+            },
+            headers: {
+                'User-Agent': 'Request-Promise'
+            },
+            json: true,
+
+        })
+            .then(function(responseData){
+                return res.json(responseData);
+            })
+            .catch(function(err){
+                return res.json(err);
+            });
+
     });
 
-server.use("/weather", weatherRouter);
+server.use('/', router);
 
-const request = require('request');
-const cyti = "Kiev";
-const appid = "b6907d289e10d714a6e88b30761fae22";
-request("http://samples.openweathermap.org/data/2.5/weather?q=" + cyti + "&appid=" + appid,//b6907d289e10d714a6e88b30761fae22',
-    function (error, response, body) {
-        console.log('error:', error); // Print the error if one occurred
-        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-        console.log('body:', JSON.parse(body)); // Print the HTML for the Google homepage.
-    }).pipe(fs.createWriteStream('weather.json'));
+
 
 server.listen(3000, function () {
     console.log('Приклад застосунку, який прослуховує 3000-ий порт!');

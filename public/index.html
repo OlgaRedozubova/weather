@@ -22,16 +22,21 @@
 </tbody>
 </table> -->
 
+<div class="weathers">
+
+</div>
+
 <div class="weather">
 
 </div>
 
+
+
 <script>
-    // Получение всех пользователей
     function GetTasks() {
         $.ajax({
-            url: "/weather", //url запрашиваемой страницы//страница на которую будет отправлен запрос
-            type: "GET", //POST либо GET.
+            url: "/weather",
+            type: "GET",
             contentType: "application/json",
             success: function (weathers) { //Вешаем свой обработчик //локальный AJAX Event, срабатывает если ошибок не возникло
                 var rows = "";
@@ -40,7 +45,7 @@
                     rows += row(key, item);
                 });
 
-                $('.weather').append(rows);
+                $('.weathers').append(rows);
             }
         });
     }
@@ -53,10 +58,27 @@
             "</div>";
     };
 
+    function getWeather(city, appid) {
+      $.ajax({
+          url: "/weather",
+          contentType: "application/json",
+          method: "GET",
+          success: function (weather) {
+              console.log(weather.main);
+              var rows = "";
+              $.each(weather.main, function (key, item) {
+                  rows += row(key, item);
+              });
+              $('.weather').append(rows);
+          }
+      })  
+    };
+    
     $("form").submit(function (e) {
         e.preventDefault();
         const city = this.elements["city"].value;
         const appid = this.elements["appid"].value;
+        getWeather(city, appid);
         console.log(city);
         console.log(appid);
     });
